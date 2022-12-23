@@ -43,11 +43,7 @@ const HomePage = () => {
    return (
       <div className="w-screen h-screen relative">
          {/* nếu mà không có data và xảy ra lỗi thì hiển thị Clear */}
-         {data ? (
-            <Imagebg weather={data.weather[0].main} />
-         ) : (
-            <Imagebg weather="Clear" />
-         )}
+         <Imagebg weather={data?.weather[0]?.main || "Clear"} />
 
          <div className="absolute left-[10vw] bottom-[10vh] flex items-center gap-4">
             {!data ? (
