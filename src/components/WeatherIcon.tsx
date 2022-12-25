@@ -44,9 +44,9 @@ const WeatherIcon = ({ weather }: { weather: WeatherIconProps }) => {
    }, [weather]);
 
    return (
-      <div className="text-5xl">
+      <>
          {icon}
-      </div>
+      </>
    );
    
 };

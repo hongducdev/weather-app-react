@@ -7,6 +7,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import Rain from "../assets/images/rain.jpg";
 import Imagebg from "../components/Imagebg";
 import WeatherIcon from "../components/WeatherIcon";
+import Forecast from "../components/Forecast";
 
 const HomePage = () => {
    const [searchData, setSearchData] = React.useState("");
@@ -42,7 +43,29 @@ const HomePage = () => {
       setSearchData(e.target.value);
    };
 
+   // lấy dữ liệu của 4 ngày tiếp theo
 
+   const [lat4day, setLat4day] = React.useState("");
+   const [lon4day, setLon4day] = React.useState("");
+
+   React.useEffect(() => {
+      if (data?.cod == "404") {
+         setLat4day("");
+         setLon4day("");
+      } else {
+         setLat4day(data?.coord?.lat);
+         setLon4day(data?.coord?.lon);
+      }
+   }, [data]);
+
+   const {
+      data: data4day,
+      error: error4day,
+      isLoading: isLoading4day,
+   } = useSWR(
+      `https://api.openweathermap.org/data/2.5/onecall?lat=${lat4day}&lon=${lon4day}&exclude=current,minutely,hourly,alerts&appid=${api_key}&units=metric&lang=vi`,
+      fetcher
+   );
 
    return (
       <div className="w-screen h-screen relative bg-slate-800">
@@ -93,9 +116,13 @@ const HomePage = () => {
                            </h4>
                         </div>
                         <div className="text-white">
-                           <WeatherIcon
-                              weather={data ? data?.weather[0]?.main : "Clear"}
-                           />
+                           <div className="text-5xl">
+                              <WeatherIcon
+                                 weather={
+                                    data ? data?.weather[0]?.main : "Clear"
+                                 }
+                              />
+                           </div>
                            <span className="font-medium">
                               {data ? data?.weather[0]?.main : "Clear"}
                            </span>
@@ -114,8 +141,7 @@ const HomePage = () => {
                            onChange={handlerSearch}
                         />
                      </div>
-                     <button
-                        className="bg-slate-500 h-full w-[70px] flex items-center justify-center">
+                     <button className="bg-slate-500 h-full w-[70px] flex items-center justify-center">
                         <BsSearch className="text-2xl text-white" />
                      </button>
                   </div>
@@ -146,22 +172,24 @@ const HomePage = () => {
                      </div>
                   </div>
 
-                  {/* <div className="p-6">
-               <div className="text-white border-b-2 py-6">
-                  <h2 className="font-semibold">Next Days</h2>
-                  <div className="flex flex-col gap-5 mt-5">
-                     <div className="flex items-center justify-between">
-                        <span className="">Monday</span>
-                        <div className="flex gap-2">
-                           <BsCloudRain className="text-3xl" />
-                           <span className="text-2xl">
-                              12<span className="align-top text-sm">o</span>{" "}
-                           </span>
-                        </div>
+                  <div className="p-6">
+                     <div className="text-white border-b-2 py-6">
+                        <h2 className="font-semibold">Next Days</h2>
+                        {data?.cod == "404" || data4day?.cod == "404" || data4day?.cod == "400" ? (
+                           <div className="text-white text-2xl">
+                              Không có dữ liệu
+                           </div>
+                        ) : (
+                           <div className="flex flex-col gap-5 mt-5">
+                              {data4day?.daily?.map(
+                                 (item: any, index: number) => {
+                                    return <Forecast key={index} item={item} />;
+                                 }
+                              )}
+                           </div>
+                        )}
                      </div>
                   </div>
-               </div>
-            </div> */}
                </div>
             </>
          )}
